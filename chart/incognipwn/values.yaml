@@ -2,7 +2,7 @@ namespace: incognipwn
 
 api:
   image:
-    repository: incognipwn-api
+    repository: ghcr.io/millaguie/incognipwn-api
     tag: latest
     pullPolicy: IfNotPresent
   replicas: 3
@@ -36,7 +36,7 @@ api:
 
 downloader:
   image:
-    repository: incognipwn-downloader
+    repository: ghcr.io/millaguie/incognipwn-downloader
     tag: latest
     pullPolicy: IfNotPresent
   schedule: "0 3 * * 0"

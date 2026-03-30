@@ -53,14 +53,15 @@ curl http://localhost:8000/range/21BD1
 
 ### Kubernetes (Helm)
 
-```bash
-# Build and push images to your registry first
-docker build -t your-registry/incognipwn-api:latest ./api
-docker build -t your-registry/incognipwn-downloader:latest ./downloader
-docker push your-registry/incognipwn-api:latest
-docker push your-registry/incognipwn-downloader:latest
+Pre-built images are available at `ghcr.io/millaguie/incognipwn-api` and `ghcr.io/millaguie/incognipwn-downloader`.
 
-# Install with production values
+```bash
+# Install with production values (images are pulled from GHCR by default)
+helm install incognipwn ./chart/incognipwn \
+  -n incognipwn --create-namespace \
+  -f ./chart/incognipwn/values/prod.yaml
+
+# Or override with your own registry
 helm install incognipwn ./chart/incognipwn \
   -n incognipwn --create-namespace \
   -f ./chart/incognipwn/values/prod.yaml \
@@ -68,7 +69,7 @@ helm install incognipwn ./chart/incognipwn \
   --set downloader.image.repository=your-registry/incognipwn-downloader
 
 # Test
-curl http://incognipwnd.example.com/range/21BD1
+curl http://incognipwn.example.com/range/21BD1
 ```
 
 ## API Reference
