@@ -1,0 +1,12 @@
+IncogniPwn has been deployed!
+
+API endpoint: http://{{ .Values.api.ingress.host }}
+
+To check the status:
+  kubectl get pods -n {{ .Values.namespace }}
+
+To trigger a manual download:
+  kubectl create job --from=cronjob/{{ include "incognipwn.fullname" . }}-downloader manual-download-$(date +%s) -n {{ .Values.namespace }}
+
+To test the API:
+  curl http://{{ .Values.api.ingress.host }}/range/21BD1
