@@ -1,0 +1,70 @@
+namespace: incognipwn
+
+api:
+  image:
+    repository: incognipwn-api
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicas: 3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  service:
+    type: ClusterIP
+    port: 8000
+  ingress:
+    enabled: true
+    className: nginx
+    annotations: {}
+    host: incognipwn.example.com
+    tls:
+      enabled: false
+      secretName: ""
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilization: 70
+  pdb:
+    enabled: true
+    minAvailable: 1
+  extraEnv: {}
+
+downloader:
+  image:
+    repository: incognipwn-downloader
+    tag: latest
+    pullPolicy: IfNotPresent
+  schedule: "0 3 * * 0"
+  parallelism: 64
+  overwrite: true
+  skipAgeDays: 7
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 1Gi
+  extraEnv: {}
+
+storage:
+  accessMode: ReadWriteMany
+  size: 25Gi
+  storageClassName: ""
+  existingClaim: ""
+
+initDownloader:
+  enabled: true
+  skipAgeDays: 0
+
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  labels: {}

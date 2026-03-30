@@ -1,0 +1,38 @@
+namespace: incognipwn
+
+api:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 250m
+      memory: 128Mi
+  ingress:
+    enabled: false
+  hpa:
+    enabled: false
+  pdb:
+    enabled: false
+
+downloader:
+  schedule: "0 3 * * *"
+  parallelism: 16
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 512Mi
+
+storage:
+  size: 30Gi
+  storageClassName: ""
+
+initDownloader:
+  enabled: true
+
+serviceMonitor:
+  enabled: false

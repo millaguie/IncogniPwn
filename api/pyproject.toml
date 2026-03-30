@@ -1,0 +1,22 @@
+[project]
+name = "incognipwn-api"
+version = "0.1.0"
+description = "Privacy-preserving self-hosted HIBP Pwned Passwords k-anonymity API"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "prometheus-client>=0.21.0",
+    "prometheus-fastapi-instrumentator>=7.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.mypy]
+python_version = "3.12"
+strict = true

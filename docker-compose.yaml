@@ -1,0 +1,35 @@
+services:
+  downloader:
+    build:
+      context: ./downloader
+    volumes:
+      - hash-data:/data/hashes
+      - hash-temp:/data/hashes-new
+    environment:
+      - HASH_OUTPUT_DIR=/data/hashes
+      - HASH_TEMP_DIR=/data/hashes-new
+      - PARALLELISM=64
+      - OVERWRITE=true
+
+  api:
+    build:
+      context: ./api
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - hash-data:/data/hashes:ro
+    environment:
+      - DATA_DIR=/data/hashes
+    depends_on:
+      downloader:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  hash-data:
+  hash-temp:

@@ -1,0 +1,50 @@
+namespace: incognipwn
+
+api:
+  replicas: 3
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+  ingress:
+    enabled: true
+    className: nginx
+    host: incognipwn.example.com
+    tls:
+      enabled: true
+      secretName: incognipwn-api-tls
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilization: 70
+  pdb:
+    enabled: true
+    minAvailable: 1
+
+downloader:
+  schedule: "0 3 * * 0"
+  parallelism: 64
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 1Gi
+
+storage:
+  size: 25Gi
+  storageClassName: nfs
+
+initDownloader:
+  enabled: true
+
+serviceMonitor:
+  enabled: true
+  interval: 30s
+  labels:
+    release: prometheus

@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "incognipwn.fullname" . }}-api
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "incognipwn.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  {{- if and .Values.api.hpa.enabled (not .Values.initDownloader.enabled) }}
+  replicas: null
+  {{- else }}
+  replicas: {{ .Values.api.replicas }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "incognipwn.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        {{- include "incognipwn.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      {{- if .Values.initDownloader.enabled }}
+      initContainers:
+        - name: init-download
+          image: {{ .Values.downloader.image.repository }}:{{ .Values.downloader.image.tag }}
+          imagePullPolicy: {{ .Values.downloader.image.pullPolicy }}
+          command: ["/entrypoint.sh"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+            - name: HASH_OUTPUT_DIR
+              value: /data/hashes
+            - name: HASH_TEMP_DIR
+              value: /data/hashes-new
+            - name: PARALLELISM
+              value: {{ .Values.downloader.parallelism | quote }}
+            - name: OVERWRITE
+              value: {{ .Values.downloader.overwrite | quote }}
+            - name: SKIP_AGE_DAYS
+              value: {{ .Values.initDownloader.skipAgeDays | quote }}
+      {{- end }}
+      containers:
+        - name: api
+          image: {{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: DATA_DIR
+              value: /data/hashes
+            {{- range $key, $value := .Values.api.extraEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+              readOnly: true
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.storage.existingClaim | default (printf "%s-hashes" (include "incognipwn.fullname" .)) }}

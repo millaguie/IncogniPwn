@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "incognipwn.fullname" . }}-downloader
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "incognipwn.labels" . | nindent 4 }}
+    app.kubernetes.io/component: downloader
+spec:
+  schedule: {{ .Values.downloader.schedule | quote }}
+  successfulJobsHistoryLimit: {{ .Values.downloader.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.downloader.failedJobsHistoryLimit }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            {{- include "incognipwn.selectorLabels" . | nindent 12 }}
+            app.kubernetes.io/component: downloader
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: downloader
+              image: {{ .Values.downloader.image.repository }}:{{ .Values.downloader.image.tag }}
+              imagePullPolicy: {{ .Values.downloader.image.pullPolicy }}
+              command: ["/entrypoint.sh"]
+              volumeMounts:
+                - name: data
+                  mountPath: /data
+              env:
+                - name: HASH_OUTPUT_DIR
+                  value: /data/hashes
+                - name: HASH_TEMP_DIR
+                  value: /data/hashes-new
+                - name: PARALLELISM
+                  value: {{ .Values.downloader.parallelism | quote }}
+                - name: OVERWRITE
+                  value: {{ .Values.downloader.overwrite | quote }}
+                - name: SKIP_AGE_DAYS
+                  value: {{ .Values.downloader.skipAgeDays | quote }}
+                {{- range $key, $value := .Values.downloader.extraEnv }}
+                - name: {{ $key }}
+                  value: {{ $value | quote }}
+                {{- end }}
+              resources:
+                {{- toYaml .Values.downloader.resources | nindent 16 }}
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: {{ .Values.storage.existingClaim | default (printf "%s-hashes" (include "incognipwn.fullname" .)) }}

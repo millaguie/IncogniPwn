@@ -1,0 +1,19 @@
+{{- if not .Values.storage.existingClaim -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "incognipwn.fullname" . }}-hashes
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "incognipwn.labels" . | nindent 4 }}
+    app.kubernetes.io/component: storage
+spec:
+  accessModes:
+    - {{ .Values.storage.accessMode }}
+  {{- if .Values.storage.storageClassName }}
+  storageClassName: {{ .Values.storage.storageClassName }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.storage.size }}
+{{- end -}}

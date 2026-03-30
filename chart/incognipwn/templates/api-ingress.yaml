@@ -1,0 +1,33 @@
+{{- if .Values.api.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "incognipwn.fullname" . }}-api
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "incognipwn.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  {{- with .Values.api.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  ingressClassName: {{ .Values.api.ingress.className }}
+  {{- if .Values.api.ingress.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ .Values.api.ingress.host }}
+      secretName: {{ .Values.api.ingress.tls.secretName | default (printf "%s-api-tls" (include "incognipwn.fullname" .)) }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.api.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "incognipwn.fullname" . }}-api
+                port:
+                  number: {{ .Values.api.service.port }}
+{{- end -}}

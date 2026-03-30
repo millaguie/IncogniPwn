@@ -1,0 +1,6 @@
+apiVersion: v2
+name: incognipwn
+description: Privacy-preserving self-hosted HIBP Pwned Passwords k-anonymity API
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

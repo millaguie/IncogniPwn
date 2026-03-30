@@ -1,0 +1,16 @@
+{{- if .Values.api.pdb.enabled -}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "incognipwn.fullname" . }}-api
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "incognipwn.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  minAvailable: {{ .Values.api.pdb.minAvailable }}
+  selector:
+    matchLabels:
+      {{- include "incognipwn.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+{{- end -}}
