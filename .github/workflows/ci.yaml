@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.14"
       - run: pip install -r api/requirements.txt ruff mypy
       - run: ruff check api/ tests/
       - run: ruff format --check api/ tests/
@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.14"
       - run: pip install -r api/requirements.txt httpx pytest
       - run: PYTHONPATH=api python -m pytest tests/ -v
 

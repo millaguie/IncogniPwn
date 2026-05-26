@@ -50,14 +50,10 @@ async def get_range(
     duration = time.perf_counter() - start
     REQUEST_DURATION.observe(duration)
 
+    # HIBP returns HTTP 200 for every valid prefix (00000-FFFFF), never 404.
+    # A missing prefix file yields an empty (or padding-only) 200 response.
     if not found:
         PREFIX_NOT_FOUND.inc()
-        REQUEST_COUNT.labels(status="404").inc()
-        return Response(
-            content=f'The hash prefix "{prefix}" was not found in the data set.\n',
-            status_code=404,
-            media_type="text/plain",
-        )
 
     body = "\n".join(results) + "\n" if results else ""
     RESPONSE_SIZE.set(len(body.encode()))

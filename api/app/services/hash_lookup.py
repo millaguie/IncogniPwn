@@ -42,11 +42,11 @@ def lookup_range(prefix: str, with_padding: bool = False) -> tuple[list[str], bo
         return [], False, 0
 
     path = _hash_file_path(prefix)
-    if not path.exists():
-        return [], False, 0
-
-    content = path.read_text()
-    results, ignored = _parse_hash_file(content)
+    if path.exists():
+        results, ignored = _parse_hash_file(path.read_text())
+        found = True
+    else:
+        results, ignored, found = [], 0, False
 
     if with_padding:
         while len(results) < config.MIN_PADDING_RESULTS:
@@ -54,4 +54,4 @@ def lookup_range(prefix: str, with_padding: bool = False) -> tuple[list[str], bo
         if len(results) > config.MAX_PADDING_RESULTS:
             results = results[: config.MAX_PADDING_RESULTS]
 
-    return results, True, ignored
+    return results, found, ignored

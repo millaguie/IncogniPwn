@@ -105,9 +105,17 @@ class TestAPIEndpoints:
         assert "text/plain" in response.headers["content-type"]
         assert "0018A45C4D1DEF81644B54AB7F969B88D65:1" in response.text
 
-    def test_range_not_found(self, sample_data):
+    def test_range_missing_prefix_returns_empty_200(self, sample_data):
+        # HIBP returns 200 for every valid prefix, never 404.
         response = client.get("/range/AAAAA")
-        assert response.status_code == 404
+        assert response.status_code == 200
+        assert response.text == ""
+
+    def test_range_missing_prefix_with_padding(self, sample_data):
+        response = client.get("/range/AAAAA", headers={"Add-Padding": "true"})
+        assert response.status_code == 200
+        lines = response.text.strip().split("\n")
+        assert len(lines) >= 800
 
     def test_range_invalid_prefix(self, sample_data):
         response = client.get("/range/ZZZZZ")
