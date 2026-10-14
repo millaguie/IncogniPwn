@@ -5,7 +5,7 @@ from pathlib import Path
 
 from prometheus_client import Counter, Gauge, Histogram
 
-import app.config as config
+from app import config
 
 logger = logging.getLogger("incognipwn")
 
