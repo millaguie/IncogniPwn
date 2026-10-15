@@ -5,7 +5,7 @@ from pathlib import Path
 from fastapi import APIRouter, Header, Response
 from fastapi.responses import JSONResponse
 
-import app.config as config
+from app import config
 from app.services.hash_lookup import lookup_range, validate_prefix
 from app.services.metrics import (
     MALFORMED_LINES,

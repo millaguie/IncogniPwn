@@ -3,7 +3,7 @@ import os
 import re
 from pathlib import Path
 
-import app.config as config
+from app import config
 
 logger = logging.getLogger("incognipwn")
 

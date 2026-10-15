@@ -5,7 +5,7 @@ from pathlib import Path
 
 from prometheus_client import Counter, Gauge, Histogram
 
-import app.config as config
+from app import config
 
 logger = logging.getLogger("incognipwn")
 
@@ -98,7 +98,11 @@ def update_dataset_metrics() -> None:
                 time.time() - ts if ts > 0 else 0,
             )
             return
-        except json.JSONDecodeError, KeyError, TypeError:
+        except (
+            json.JSONDecodeError,
+            KeyError,
+            TypeError,
+        ):
             logger.exception("Failed to parse %s", status_path)
 
     data_path = Path(config.DATA_DIR)

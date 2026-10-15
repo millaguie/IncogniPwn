@@ -1,10 +1,8 @@
 import pytest
-
-from fastapi.testclient import TestClient
 from app.main import app
 from app.services.hash_lookup import lookup_range, validate_prefix
 from app.services.metrics import update_dataset_metrics
-
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
@@ -54,11 +52,11 @@ class TestLookupRange:
         assert "0018A45C4D1DEF81644B54AB7F969B88D65:1" in results
 
     def test_not_found(self, sample_data):
-        results, found, _ = lookup_range("ZZZZZ")
+        _results, found, _ = lookup_range("ZZZZZ")
         assert found is False
 
     def test_file_not_exists(self, sample_data):
-        results, found, _ = lookup_range("AAAAA")
+        _results, found, _ = lookup_range("AAAAA")
         assert found is False
 
     def test_case_insensitive(self, sample_data):
